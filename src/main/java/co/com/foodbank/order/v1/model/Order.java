@@ -10,6 +10,11 @@ import co.com.foodbank.user.model.IBeneficiary;
 import co.com.foodbank.user.model.IVolunter;
 
 
+/**
+ * Class to represent an Order for foodbabk.
+ * 
+ * @author mauricio.londono@gmail.com co.com.foodbank.order.v1.model 9/08/2021
+ */
 @Document(collection = "Order")
 public class Order implements IOrder {
 
@@ -20,7 +25,7 @@ public class Order implements IOrder {
     private IBeneficiary beneficiary;
     private IVolunter volunter;
     private Collection<IPackaged> packages;
-    // private IStateOrder state;
+    private IStateOrder state;
     // private Collection<Message> message;
 
 
@@ -86,12 +91,14 @@ public class Order implements IOrder {
      * public void setMessage(Collection<Message> message) { this.message =
      * message; }
      */
-    /*
-     * @Override public IStateOrder getState() { return state; }
-     */
 
-    /*
-     * public void setState(IStateOrder state) { this.state = state; }
-     */
+    public IStateOrder getState() {
+        return state;
+    }
+
+    public void setState(IStateOrder state) {
+        this.state = state;
+    }
+
 
 }
