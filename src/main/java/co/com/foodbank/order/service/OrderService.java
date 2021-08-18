@@ -35,7 +35,6 @@ import co.com.foodbank.packaged.dto.PackagedDTO;
 import co.com.foodbank.packaged.dto.interfaces.IPackaged;
 import co.com.foodbank.packaged.dto.state.ClosePackaged;
 import co.com.foodbank.packaged.request.RequestPackaged;
-import co.com.foodbank.packaged.sdk.service.SDKPackagedService;
 import co.com.foodbank.user.dto.request.RequestBeneficiaryData;
 import co.com.foodbank.user.dto.request.RequestVolunterData;
 import co.com.foodbank.user.dto.response.BeneficiaryData;
@@ -71,9 +70,6 @@ public class OrderService {
     @Qualifier("sdkMessage")
     private SDKMessageService sdkMessage;
 
-    @Autowired
-    @Qualifier("sdkPackaged")
-    private SDKPackagedService sdkPackaged;
 
 
     /**
