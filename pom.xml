@@ -105,11 +105,7 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
-		<dependency>
-			<groupId>co.com.foodbank.packaged</groupId>
-			<artifactId>co.foodbank.lib.sdk.packaged</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
+		
 		<!-- SDKs -->
 
 
