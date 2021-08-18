@@ -3,11 +3,13 @@ package co.com.foodbank.order.v1.model;
 import java.util.Collection;
 import java.util.Date;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
-import co.com.foodbank.order.dto.IOrder;
-import co.com.foodbank.packaged.dto.IPackaged;
-import co.com.foodbank.user.model.IBeneficiary;
-import co.com.foodbank.user.model.IVolunter;
+import co.com.foodbank.message.dto.interfaces.IMessage;
+import co.com.foodbank.order.dto.interfaces.IOrder;
+import co.com.foodbank.packaged.dto.interfaces.IPackaged;
+import co.com.foodbank.user.dto.response.BeneficiaryData;
+import co.com.foodbank.user.dto.response.VolunteerData;
 
 
 /**
@@ -22,17 +24,32 @@ public class Order implements IOrder {
     @Id
     private String id;
     private Date dateOrder;
-    private IBeneficiary beneficiary;
-    private IVolunter volunter;
-    private Collection<IPackaged> packages;
+    private BeneficiaryData beneficiary;
+    private VolunteerData volunter;
     private IStateOrder state;
-    // private Collection<Message> message;
+
+    private Collection<IPackaged> packages;
+    private Collection<IMessage> message;
+
 
 
     /**
      * Default constructor.
      */
     public Order() {}
+
+    @PersistenceConstructor
+    public Order(String id, Date dateOrder, BeneficiaryData beneficiary,
+            VolunteerData volunter, IStateOrder state,
+            Collection<IPackaged> packages, Collection<IMessage> message) {
+        this.id = id;
+        this.dateOrder = dateOrder;
+        this.beneficiary = beneficiary;
+        this.volunter = volunter;
+        this.state = state;
+        this.packages = packages;
+        this.message = message;
+    }
 
     @Override
     public String getId() {
@@ -66,31 +83,35 @@ public class Order implements IOrder {
 
 
     @Override
-    public IBeneficiary getBeneficiary() {
+    public BeneficiaryData getBeneficiary() {
         return beneficiary;
     }
 
 
-    public void setBeneficiary(IBeneficiary beneficiary) {
+    public void setBeneficiary(BeneficiaryData beneficiary) {
         this.beneficiary = beneficiary;
     }
 
     @Override
-    public IVolunter getVolunter() {
+    public VolunteerData getVolunter() {
         return volunter;
     }
 
 
-    public void setVolunter(IVolunter volunter) {
+    public void setVolunter(VolunteerData volunter) {
         this.volunter = volunter;
     }
-    /*
-     * @Override public Collection<Message> getMessage() { return message; }
-     * 
-     * 
-     * public void setMessage(Collection<Message> message) { this.message =
-     * message; }
-     */
+
+    @Override
+    public Collection<IMessage> getMessage() {
+        return message;
+    }
+
+
+    public void setMessage(Collection<IMessage> message) {
+        this.message = message;
+    }
+
 
     public IStateOrder getState() {
         return state;

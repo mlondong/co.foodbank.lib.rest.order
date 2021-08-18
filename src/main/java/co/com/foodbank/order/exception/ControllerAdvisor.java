@@ -15,7 +15,9 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import co.com.foodbank.user.sdk.exception.SDKUserNotFoundException;
 
 
 /**
@@ -24,6 +26,37 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
  */
 @ControllerAdvice
 public class ControllerAdvisor {
+
+
+
+    /**
+     * Method to handle SDKUserNotFoundException
+     */
+    @ExceptionHandler(value = SDKUserNotFoundException.class)
+    public ResponseEntity<Object> handleSDKUserNotFoundException(
+            SDKUserNotFoundException ex) {
+
+
+        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND,
+                ex.getLocalizedMessage(), ex.getMessage());
+        return new ResponseEntity<Object>(apiError, new HttpHeaders(),
+                apiError.getStatus());
+    }
+
+
+    /**
+     * Method to handle ResourceAccessException
+     */
+    @ExceptionHandler(value = ResourceAccessException.class)
+    public ResponseEntity<Object> handleResourceAccessException(
+            ResourceAccessException ex) {
+
+
+        ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR,
+                ex.getLocalizedMessage(), ex.getMessage());
+        return new ResponseEntity<Object>(apiError, new HttpHeaders(),
+                apiError.getStatus());
+    }
 
 
 
