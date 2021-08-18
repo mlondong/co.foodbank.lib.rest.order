@@ -77,17 +77,41 @@
 		</dependency>
 
 		<!-- DTOs -->
-		<dependency>
-			<groupId>co.com.foodbank.packaged</groupId>
-			<artifactId>co.foodbank.lib.dto.packaged</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		
+
 		<dependency>
 			<groupId>co.com.foodbank.user</groupId>
 			<artifactId>co.foodbank.lib.dto.user</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+
+		<dependency>
+			<groupId>co.com.foodbank.order</groupId>
+			<artifactId>co.foodbank.lib.dto.order</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<!-- DTOs -->
+
+		<!-- SDKs -->
+		<dependency>
+			<groupId>co.com.foodbank.user</groupId>
+			<artifactId>co.foodbank.lib.sdk.user</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>co.com.foodbank.message</groupId>
+			<artifactId>co.foodbank.lib.sdk.message</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>co.com.foodbank.packaged</groupId>
+			<artifactId>co.foodbank.lib.sdk.packaged</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<!-- SDKs -->
+
 
 	</dependencies>
 
