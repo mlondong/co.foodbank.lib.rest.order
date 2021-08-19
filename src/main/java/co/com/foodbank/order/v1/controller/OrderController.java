@@ -73,11 +73,12 @@ public class OrderController {
      * @throws SDKUserServiceNotAvailableException
      * @throws JsonProcessingException
      * @throws JsonMappingException
+     * @throws OrderErrorException
      */
-    public IOrder create(@Valid OrderDTO dto)
-            throws JsonMappingException, JsonProcessingException,
-            SDKUserServiceNotAvailableException, SDKUserServiceException,
-            SDKUserServiceIllegalArgumentException, SDKUserNotFoundException {
+    public IOrder create(@Valid OrderDTO dto) throws JsonMappingException,
+            JsonProcessingException, SDKUserServiceNotAvailableException,
+            SDKUserServiceException, SDKUserServiceIllegalArgumentException,
+            SDKUserNotFoundException, OrderErrorException {
         return service.create(dto);
     }
 
@@ -95,12 +96,13 @@ public class OrderController {
      * @throws SDKUserServiceNotAvailableException
      * @throws JsonProcessingException
      * @throws JsonMappingException
+     * @throws OrderErrorException
      */
     public IOrder addVolunteer(@NotNull String id,
-            @Valid RequestVolunterData data)
-            throws JsonMappingException, JsonProcessingException,
-            SDKUserServiceNotAvailableException, SDKUserServiceException,
-            SDKUserServiceIllegalArgumentException, SDKUserNotFoundException {
+            @Valid RequestVolunterData data) throws JsonMappingException,
+            JsonProcessingException, SDKUserServiceNotAvailableException,
+            SDKUserServiceException, SDKUserServiceIllegalArgumentException,
+            SDKUserNotFoundException, OrderErrorException {
         return service.addVolunteer(id, data);
     }
 
@@ -114,10 +116,11 @@ public class OrderController {
      * @return {@code IOrder}
      * @throws SDKMessageServiceException
      * @throws SDKMessageServiceIllegalArgumentException
+     * @throws OrderErrorException
      */
     public IOrder addMessage(@NotNull String id, @Valid MessageDTO messageDTO)
             throws SDKMessageServiceIllegalArgumentException,
-            SDKMessageServiceException {
+            SDKMessageServiceException, OrderErrorException {
         return service.addMessage(id, messageDTO);
     }
 

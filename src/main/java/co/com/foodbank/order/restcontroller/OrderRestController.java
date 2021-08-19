@@ -123,6 +123,7 @@ public class OrderRestController {
      * @throws SDKUserServiceNotAvailableException
      * @throws JsonProcessingException
      * @throws JsonMappingException
+     * @throws OrderErrorException
      * @throws PackageErrorException
      */
     @Operation(summary = "Create Order", description = "", tags = {"order"})
@@ -143,7 +144,8 @@ public class OrderRestController {
     public ResponseEntity<IOrder> create(@RequestBody @Valid OrderDTO dto)
             throws JsonMappingException, JsonProcessingException,
             SDKUserServiceNotAvailableException, SDKUserServiceException,
-            SDKUserServiceIllegalArgumentException, SDKUserNotFoundException {
+            SDKUserServiceIllegalArgumentException, SDKUserNotFoundException,
+            OrderErrorException {
         return new ResponseEntity<IOrder>(controller.create(dto),
                 HttpStatus.CREATED);
     }
@@ -161,6 +163,7 @@ public class OrderRestController {
      * @throws SDKUserServiceNotAvailableException
      * @throws JsonProcessingException
      * @throws JsonMappingException
+     * @throws OrderErrorException
      * @throws PackageErrorException
      */
     @Operation(summary = "Add volunter order", description = "",
@@ -184,7 +187,8 @@ public class OrderRestController {
             @RequestBody @Valid RequestVolunterData volunteer)
             throws JsonMappingException, JsonProcessingException,
             SDKUserServiceNotAvailableException, SDKUserServiceException,
-            SDKUserServiceIllegalArgumentException, SDKUserNotFoundException {
+            SDKUserServiceIllegalArgumentException, SDKUserNotFoundException,
+            OrderErrorException {
         return new ResponseEntity<IOrder>(
                 controller.addVolunteer(id, volunteer), HttpStatus.OK);
     }
@@ -203,6 +207,7 @@ public class OrderRestController {
      * @throws JsonMappingException
      * @throws SDKMessageServiceException
      * @throws SDKMessageServiceIllegalArgumentException
+     * @throws OrderErrorException
      * @throws PackageErrorException
      */
     @Operation(summary = "Add message order", description = "",
@@ -225,7 +230,7 @@ public class OrderRestController {
             @PathVariable("id-order") @NotNull String id,
             @RequestBody @Valid MessageDTO messageDTO)
             throws SDKMessageServiceIllegalArgumentException,
-            SDKMessageServiceException {
+            SDKMessageServiceException, OrderErrorException {
         return new ResponseEntity<IOrder>(controller.addMessage(id, messageDTO),
                 HttpStatus.OK);
     }

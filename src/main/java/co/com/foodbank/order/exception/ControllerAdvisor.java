@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import co.com.foodbank.user.sdk.exception.SDKUserNotFoundException;
+import co.com.foodbank.user.sdk.exception.SDKUserServiceNotAvailableException;
 
 
 /**
@@ -26,6 +27,22 @@ import co.com.foodbank.user.sdk.exception.SDKUserNotFoundException;
  */
 @ControllerAdvice
 public class ControllerAdvisor {
+
+
+
+    /**
+     * Method to handle SDKUserServiceNotAvailableException
+     */
+    @ExceptionHandler(value = SDKUserServiceNotAvailableException.class)
+    public ResponseEntity<Object> handleSDKUserServiceNotAvailableException(
+            SDKUserServiceNotAvailableException ex) {
+
+
+        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND,
+                ex.getLocalizedMessage(), ex.getMessage());
+        return new ResponseEntity<Object>(apiError, new HttpHeaders(),
+                apiError.getStatus());
+    }
 
 
 

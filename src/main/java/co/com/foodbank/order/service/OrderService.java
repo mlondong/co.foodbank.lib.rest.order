@@ -33,7 +33,8 @@ import co.com.foodbank.order.v1.model.PendingOrder;
 import co.com.foodbank.order.v1.model.ShipmentOrder;
 import co.com.foodbank.packaged.dto.PackagedDTO;
 import co.com.foodbank.packaged.dto.interfaces.IPackaged;
-import co.com.foodbank.packaged.dto.state.ClosePackaged;
+import co.com.foodbank.packaged.dto.state.IStatePackaged;
+import co.com.foodbank.packaged.dto.state.OpenPackaged;
 import co.com.foodbank.packaged.request.RequestPackaged;
 import co.com.foodbank.user.dto.request.RequestBeneficiaryData;
 import co.com.foodbank.user.dto.request.RequestVolunterData;
@@ -108,11 +109,12 @@ public class OrderService {
      * @throws SDKUserServiceNotAvailableException
      * @throws JsonProcessingException
      * @throws JsonMappingException
+     * @throws OrderErrorException
      */
-    public IOrder create(@Valid OrderDTO dto)
-            throws JsonMappingException, JsonProcessingException,
-            SDKUserServiceNotAvailableException, SDKUserServiceException,
-            SDKUserServiceIllegalArgumentException, SDKUserNotFoundException {
+    public IOrder create(@Valid OrderDTO dto) throws JsonMappingException,
+            JsonProcessingException, SDKUserServiceNotAvailableException,
+            SDKUserServiceException, SDKUserServiceIllegalArgumentException,
+            SDKUserNotFoundException, OrderErrorException {
 
         return repository.save(buildOrder(dto));
     }
@@ -129,11 +131,12 @@ public class OrderService {
      * @throws SDKUserServiceNotAvailableException
      * @throws JsonProcessingException
      * @throws JsonMappingException
+     * @throws OrderErrorException
      */
-    private Order buildOrder(OrderDTO dto)
-            throws JsonMappingException, JsonProcessingException,
-            SDKUserServiceNotAvailableException, SDKUserServiceException,
-            SDKUserServiceIllegalArgumentException, SDKUserNotFoundException {
+    private Order buildOrder(OrderDTO dto) throws JsonMappingException,
+            JsonProcessingException, SDKUserServiceNotAvailableException,
+            SDKUserServiceException, SDKUserServiceIllegalArgumentException,
+            SDKUserNotFoundException, OrderErrorException {
         Order order = new Order();
         order.setBeneficiary(initBeneficiary(dto.getBeneficiary()));
         order.setMessage(initMessage());
@@ -157,13 +160,17 @@ public class OrderService {
      * @throws SDKUserServiceException
      * @throws SDKUserServiceIllegalArgumentException
      * @throws SDKUserNotFoundException
+     * @throws OrderErrorException
      */
     private VolunteerData initVolunteer(RequestVolunterData user)
             throws JsonMappingException, JsonProcessingException,
             SDKUserServiceNotAvailableException, SDKUserServiceException,
-            SDKUserServiceIllegalArgumentException, SDKUserNotFoundException {
+            SDKUserServiceIllegalArgumentException, SDKUserNotFoundException,
+            OrderErrorException {
 
         ResponseVolunteerData data = sdkUser.findVolunteer(user);
+        validateStateUser(data.isState());
+
         return modelMapper.map(data, VolunteerData.class);
     }
 
@@ -179,21 +186,45 @@ public class OrderService {
      * @throws SDKUserServiceException
      * @throws SDKUserServiceIllegalArgumentException
      * @throws SDKUserNotFoundException
+     * @throws OrderErrorException
      */
     private BeneficiaryData initBeneficiary(RequestBeneficiaryData user)
             throws JsonMappingException, JsonProcessingException,
             SDKUserServiceNotAvailableException, SDKUserServiceException,
-            SDKUserServiceIllegalArgumentException, SDKUserNotFoundException {
+            SDKUserServiceIllegalArgumentException, SDKUserNotFoundException,
+            OrderErrorException {
 
         ResponseBeneficiaryData response =
                 sdkUser.findBeneficiaryById(user.getId());
+        validateInformation(user, response);
+        validateStateUser(response.isState());
+        return modelMapper.map(response, BeneficiaryData.class);
+    }
 
+
+    private void validateStateUser(boolean state) throws OrderErrorException {
+        if (!state) {
+            throw new OrderErrorException(OrderParameters.BENEFICIARY_INACTIVE);
+        }
+    }
+
+
+    private void validateStatePackage(IStatePackaged state)
+            throws OrderErrorException {
+        if (!(state instanceof OpenPackaged)) {
+            throw new OrderErrorException(
+                    OrderParameters.MSG_WRONG_STATE_PACKAGE);
+        }
+    }
+
+
+
+    private void validateInformation(RequestBeneficiaryData user,
+            ResponseBeneficiaryData response) throws SDKUserNotFoundException {
         if (!response.getSocialReason().equals(user.getSocialReason())) {
             throw new SDKUserNotFoundException(user.toString(),
                     OrderParameters.MSG_WRONG_INFORMATON);
         }
-
-        return modelMapper.map(response, BeneficiaryData.class);
     }
 
 
@@ -227,14 +258,17 @@ public class OrderService {
      * @throws SDKUserServiceNotAvailableException
      * @throws JsonProcessingException
      * @throws JsonMappingException
+     * @throws OrderErrorException
      */
     public IOrder addVolunteer(String id, RequestVolunterData data)
             throws JsonMappingException, JsonProcessingException,
             SDKUserServiceNotAvailableException, SDKUserServiceException,
-            SDKUserServiceIllegalArgumentException, SDKUserNotFoundException {
+            SDKUserServiceIllegalArgumentException, SDKUserNotFoundException,
+            OrderErrorException {
 
         Order order = getOrder(id);
         order.setVolunter(initVolunteer(data));
+        validateStateOrder(order.getState());;
         return repository.save(order);
     }
 
@@ -246,13 +280,25 @@ public class OrderService {
      * @return {@code IOrder}
      * @throws SDKMessageServiceException
      * @throws SDKMessageServiceIllegalArgumentException
+     * @throws OrderErrorException
      */
     public IOrder addMessage(String id, MessageDTO messageDTO)
             throws SDKMessageServiceIllegalArgumentException,
-            SDKMessageServiceException {
+            SDKMessageServiceException, OrderErrorException {
         Order order = getOrder(id);
         order.getMessage().add(initMessage(messageDTO));
+        validateStateOrder(order.getState());
+
         return repository.save(order);
+    }
+
+
+    private void validateStateOrder(IStateOrder state)
+            throws OrderErrorException {
+        // TODO Auto-generated method stub
+        if (state instanceof DeliveredOrder) {
+            throw new OrderErrorException(OrderParameters.MSG_ORDER_DELIVERED);
+        }
     }
 
 
@@ -289,15 +335,35 @@ public class OrderService {
     public IOrder addPackage(String id, RequestPackaged request)
             throws OrderErrorException {
         Order order = getOrder(id);
-
-        if (request.getState() instanceof ClosePackaged) {
-            throw new OrderErrorException(request.toString()
-                    + OrderParameters.MSG_WRONG_STATE_PACKAGE);
-        }
+        validateOfPackage(request.getId(), order.getPackages());
+        validateStatePackage(request.getState());
+        validateStateOrder(order.getState());
         order.getPackages().add(request);
         return repository.save(order);
     }
 
+
+
+    private void validateOfPackage(String idRequestPackage,
+            Collection<IPackaged> packages) {
+
+        packages.stream().forEach(d -> {
+            try {
+                checkPackaged(d.getId(), idRequestPackage);
+            } catch (OrderErrorException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+
+
+    private void checkPackaged(String idSerie, String idRequestPackage)
+            throws OrderErrorException {
+        if (idSerie.equals(idRequestPackage)) {
+            throw new OrderErrorException(OrderParameters.MSG_REPETED_PACKAGED);
+        }
+    }
 
 
     /**
